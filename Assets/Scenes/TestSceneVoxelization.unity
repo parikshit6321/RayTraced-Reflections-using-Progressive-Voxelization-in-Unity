@@ -436,12 +436,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   voxelizationDebugMode: 0
-  resolution: {x: 1280, y: 720}
+  resolution: {x: 1920, y: 1080}
   worldPositionShader: {fileID: 4800000, guid: de54e19c83680c349aba14b52b7f22db, type: 3}
   voxelGridEntryShader: {fileID: 7200000, guid: acd80ca2d1ba9d441b9e15b15cf46dd6,
     type: 3}
-  worldVolumeBoundary: 10
-  voxelVolumeDimension: 64
+  worldVolumeBoundary: 50
+  voxelVolumeDimension: 256
   downsample: 2
   rayOffset: 0.2
   rayStep: 0.2

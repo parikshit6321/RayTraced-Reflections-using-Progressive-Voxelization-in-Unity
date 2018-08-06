@@ -212,7 +212,7 @@
 		}
 
 		// Traces a ray starting from the current voxel in the reflected ray direction and accumulates color
-		inline float3 RayTrace(float3 worldPosition, float3 reflectedRayDirection, float3 pixelColor, float3 pixelNormal)
+		inline float3 RayTrace(float3 worldPosition, float3 reflectedRayDirection, float3 pixelNormal)
 		{
 			// Color for storing all the samples
 			float3 accumulatedColor = float3(0.0f, 0.0f, 0.0f);
@@ -234,7 +234,7 @@
 				// At the currently traced sample
 				if ((currentVoxelInfo.w > 0.0f) && (!hitFound))
 				{
-					accumulatedColor = (currentVoxelInfo.xyz * pixelColor);
+					accumulatedColor = (currentVoxelInfo.xyz);
 					hitFound = true;
 				}
 			}
@@ -270,17 +270,18 @@
 			float3 reflectedRayDirection = normalize(reflect(pixelToCameraUnitVector, pixelNormal));
 			reflectedRayDirection *= -1.0;
 
-			float3 reflectedColor = RayTrace(worldPos, reflectedRayDirection, originalColor.rgb, pixelNormal);
+			float3 reflectedColor = RayTrace(worldPos, reflectedRayDirection, pixelNormal);
 
 			return float4(reflectedColor, 1.0f);
 		}
 
 		float4 frag_blending (v2f_blending i) : SV_Target
 		{
+			float metallic = tex2D (_CameraGBufferTexture1, i.uv).r;
 			float smoothness = tex2D (_CameraGBufferTexture1, i.uv).a;
 			float4 originalColor = tex2D(_MainTex, i.uv);
-			float3 reflectedColor = tex2D(_ReflectionTex, i.uv);
-			float3 finalColor = lerp(originalColor.rgb, reflectedColor, smoothness);
+			float3 reflectedColor = tex2D(_ReflectionTex, i.uv).rgb;
+			float3 finalColor = originalColor.rgb + (reflectedColor * smoothness * metallic);
 			return float4(finalColor, originalColor.a);
 		}
 
