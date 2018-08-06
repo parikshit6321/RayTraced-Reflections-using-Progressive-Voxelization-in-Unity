@@ -13,13 +13,7 @@
 
 		#include "UnityCG.cginc"
 
-		// Structure representing an individual voxel element
-		struct Voxel
-		{
-			float4 data;
-		};
-
-		uniform StructuredBuffer<Voxel>	voxelVolumeBuffer;
+		uniform sampler3D				voxelGrid;
 
 		uniform sampler2D 				_MainTex;
 		uniform sampler2D				_ReflectionTex;
@@ -184,13 +178,7 @@
 				worldPosition += worldVolumeBoundary;
 				worldPosition /= (2.0f * worldVolumeBoundary);
 
-				float3 temp = worldPosition * voxelVolumeDimension;
-
-				int3 voxelPosition = (int3)(temp);
-
-				int index = (voxelPosition.x * voxelVolumeDimension * voxelVolumeDimension) + (voxelPosition.y * voxelVolumeDimension) + (voxelPosition.z);
-
-				info = voxelVolumeBuffer[index].data;
+				info = tex3D(voxelGrid, worldPosition);
 			}
 
 			return info;

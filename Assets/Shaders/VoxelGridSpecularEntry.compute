@@ -1,14 +1,8 @@
 ﻿// Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
 
-// Structure representing an individual voxel element
-struct Voxel
-{
-	float4 data;
-};
-
-// Readable/Writable structured buffer for storing the voxel grid
-RWStructuredBuffer<Voxel>	voxelVolumeBuffer;
+// Readable/Writable voxel grid 3D volume texture
+RWTexture3D<float4>			voxelGrid;
 
 // Texture for storing the color with direct lighting
 Texture2D<float4>			_LightingTexture;
@@ -32,10 +26,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 	// Compute the position in the voxel grid
 	float3 voxelPosition = worldPosition * _VoxelVolumeDimension;
 	uint3 temp = (int3)(voxelPosition);
-	// Compute the index in the voxel buffer according to the computed position of the voxel
-	uint index = (temp.x * _VoxelVolumeDimension * _VoxelVolumeDimension) + (temp.y * _VoxelVolumeDimension) + (temp.z);
-	
+
 	// Store the packed data into the voxel grid buffer
-	voxelVolumeBuffer[index].data.xyz = lightingColor;
-	voxelVolumeBuffer[index].data.w = 1.0f;
+	voxelGrid[temp] = float4(lightingColor, 1.0f);
 }

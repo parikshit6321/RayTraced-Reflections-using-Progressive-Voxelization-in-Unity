@@ -26,8 +26,10 @@ public class Voxelize : MonoBehaviour {
 	public int blurIterations = 2;
 	public float blurStep = 1.0f;
 
-	private Voxel[] voxelData = null;
-	private ComputeBuffer voxelVolumeBuffer = null;
+	private RenderTexture voxelGrid;
+
+	private RenderTextureDescriptor voxelGridDescriptorFloat4;
+
 	private Material worldPositionMaterial = null;
 	private RenderTexture lightingTexture = null;
 	private RenderTexture positionTexture = null;
@@ -60,16 +62,23 @@ public class Voxelize : MonoBehaviour {
 	// Function to initialize the voxel grid data
 	private void InitializeVoxelGrid() {
 
-		// Specular voxel grid
-		voxelData = new Voxel[voxelVolumeDimension * voxelVolumeDimension * voxelVolumeDimension];
+		voxelGridDescriptorFloat4 = new RenderTextureDescriptor ();
+		voxelGridDescriptorFloat4.bindMS = false;
+		voxelGridDescriptorFloat4.colorFormat = RenderTextureFormat.ARGBFloat;
+		voxelGridDescriptorFloat4.depthBufferBits = 0;
+		voxelGridDescriptorFloat4.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
+		voxelGridDescriptorFloat4.enableRandomWrite = true;
+		voxelGridDescriptorFloat4.height = voxelVolumeDimension;
+		voxelGridDescriptorFloat4.msaaSamples = 1;
+		voxelGridDescriptorFloat4.volumeDepth = voxelVolumeDimension;
+		voxelGridDescriptorFloat4.width = voxelVolumeDimension;
+		voxelGridDescriptorFloat4.sRGB = true;
 
-		for (int i = 0; i < voxelVolumeDimension * voxelVolumeDimension * voxelVolumeDimension; ++i)
-		{
-			voxelData [i].data = Vector4.zero;
-		}
+		voxelGrid = new RenderTexture (voxelGridDescriptorFloat4);
 
-		voxelVolumeBuffer = new ComputeBuffer(voxelData.Length, 16);
-		voxelVolumeBuffer.SetData(voxelData);
+		voxelGrid.filterMode = FilterMode.Trilinear;
+
+		voxelGrid.Create ();
 
 	}
 
@@ -79,7 +88,7 @@ public class Voxelize : MonoBehaviour {
 		// Kernel index for the entry point in compute shader
 		int kernelHandle = voxelGridEntryShader.FindKernel("CSMain");
 
-		voxelGridEntryShader.SetBuffer(kernelHandle, "voxelVolumeBuffer", voxelVolumeBuffer);
+		voxelGridEntryShader.SetTexture(kernelHandle, "voxelGrid", voxelGrid);
 		voxelGridEntryShader.SetInt("_VoxelVolumeDimension", voxelVolumeDimension);
 
 		voxelGridEntryShader.SetTexture(kernelHandle, "_LightingTexture", lightingTexture);
@@ -92,7 +101,7 @@ public class Voxelize : MonoBehaviour {
 	// This is called once per frame after the scene is rendered
 	void OnRenderImage (RenderTexture source, RenderTexture destination) {
 
-		worldPositionMaterial.SetBuffer("voxelVolumeBuffer", voxelVolumeBuffer);
+		worldPositionMaterial.SetTexture("voxelGrid", voxelGrid);
 		worldPositionMaterial.SetFloat ("worldVolumeBoundary", worldVolumeBoundary);
 		worldPositionMaterial.SetFloat ("rayStep", rayStep);
 		worldPositionMaterial.SetFloat ("rayOffset", rayOffset);

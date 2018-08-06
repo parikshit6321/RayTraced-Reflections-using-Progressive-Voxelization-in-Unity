@@ -435,14 +435,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b31d25c47f1102c46a637289de082ec1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  voxelizationDebugMode: 0
+  voxelizationDebugMode: 1
   resolution: {x: 1920, y: 1080}
   worldPositionShader: {fileID: 4800000, guid: de54e19c83680c349aba14b52b7f22db, type: 3}
   voxelGridEntryShader: {fileID: 7200000, guid: acd80ca2d1ba9d441b9e15b15cf46dd6,
     type: 3}
   worldVolumeBoundary: 50
   voxelVolumeDimension: 256
-  downsample: 2
+  downsample: 1
   rayOffset: 0.2
   rayStep: 0.2
   maximumIterations: 100
